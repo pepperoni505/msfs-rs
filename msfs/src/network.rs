@@ -81,7 +81,11 @@ impl<'a> NetworkRequestBuilder<'a> {
             .iter_mut()
             .map(|h| h.as_ptr() as *mut i8)
             .collect::<Vec<_>>();
-        let data_len = self.data.as_ref().map_or(0, |d| d.len());
+        let data_len = if let Some(post_field) = post_field {
+            post_field.as_bytes().len()
+        } else {
+            self.data.as_ref().map_or(0, |d| d.len())
+        };
         let mut params = sys::FsNetworkHttpRequestParam {
             postField: raw_post_field,
             headerOptions: headers.as_mut_ptr(),
