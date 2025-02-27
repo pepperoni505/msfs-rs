@@ -72,9 +72,13 @@ impl<'a> NetworkRequestBuilder<'a> {
         ) -> sys::FsNetworkRequestId,
     ) -> Option<NetworkRequest> {
         // SAFETY: we need a *mut i8 for the FsNetworkHttpRequestParam struct but this should be fine.
-        let raw_post_field = post_field
-            .clone()
-            .map_or(ptr::null_mut(), |f| f.as_c_str().as_ptr() as *mut i8);
+        let foo = if let Some(post_field) = post_field {
+            post_field.as_bytes().len()
+        } else {
+            0
+        };
+        let raw_post_field =
+            post_field.map_or(ptr::null_mut(), |f| f.as_c_str().as_ptr() as *mut i8);
         // SAFETY: Because the struct in the C code is not defined as const char* we need to cast
         // the *const into *mut which should be safe because the function should not change it anyway
         let mut headers = self
@@ -83,7 +87,7 @@ impl<'a> NetworkRequestBuilder<'a> {
             .map(|h| h.as_ptr() as *mut i8)
             .collect::<Vec<_>>();
         let data_len = if let Some(post_field) = post_field {
-            post_field.as_bytes().len()
+            foo
         } else {
             self.data.as_ref().map_or(0, |d| d.len())
         };
