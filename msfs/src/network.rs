@@ -72,7 +72,7 @@ impl<'a> NetworkRequestBuilder<'a> {
         ) -> sys::FsNetworkRequestId,
     ) -> Option<NetworkRequest> {
         // SAFETY: we need a *mut i8 for the FsNetworkHttpRequestParam struct but this should be fine.
-        let foo = if let Some(post_field) = post_field {
+        let foo = if let Some(ref post_field) = post_field {
             post_field.as_bytes().len()
         } else {
             0
